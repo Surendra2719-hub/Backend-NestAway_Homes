@@ -70,6 +70,15 @@ public class SecurityConfig {
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                    // Static Frontend files permitAll
+                    .requestMatchers(
+                            "/",
+                            "/index.html",
+                            "/css/**",
+                            "/js/**",
+                            "/favicon.ico",
+                            "/error"
+                    ).permitAll()
                     // Public endpoints — login/register ke liye token nahi chahiye
                     .requestMatchers(
                             "/api/auth/**",

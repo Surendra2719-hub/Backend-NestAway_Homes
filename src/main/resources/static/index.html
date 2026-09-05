@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NestAway Homes - Verified Stays & Vacation Rentals</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="navbar-header">
+    <div class="container navbar-container">
+      
+      <!-- Option 1 Geometric House Roof & Gold Nest Logo -->
+      <button class="brand-logo-btn" onclick="showView('home')">
+        <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4L4 17L7.5 19.8L20 9.6L32.5 19.8L36 17L20 4Z" fill="#FF385C" />
+          <path d="M8 22C8 28.6274 13.3726 34 20 34C26.6274 34 32 28.6274 32 22H28C28 26.4183 24.4183 30 20 30C15.5817 30 12 26.4183 12 22H8Z" fill="#E2A952" />
+          <path d="M20 23L18.8 21.9C14.6 18.1 11.8 15.5 11.8 12.4C11.8 9.9 13.7 8 16.2 8C17.6 8 19 8.65 20 9.7C21 8.65 22.4 8 23.8 8C26.3 8 28.2 9.9 28.2 12.4C28.2 15.5 25.4 18.1 21.2 21.91L20 23Z" fill="#FF385C" />
+        </svg>
+        <span class="brand-name"><strong>NestAway</strong> Homes</span>
+      </button>
+
+      <!-- Desktop Nav Links -->
+      <nav class="center-nav-menu desktop-only">
+        <button class="nav-link active" id="nav-home" onclick="showView('home')">Home</button>
+        <button class="nav-link" id="nav-explore" onclick="showView('explore')">Explore</button>
+        <button class="nav-link" id="nav-wishlist" onclick="showView('explore')">
+          Saved Wishlist <span class="wishlist-badge" id="wishlist-count">0</span>
+        </button>
+      </nav>
+
+      <!-- Right Nav Actions (Desktop) -->
+      <div class="right-nav-actions desktop-only">
+        <div id="role-action-wrapper">
+          <button class="host-link-btn" onclick="handleRoleClick()">Become a Host</button>
+        </div>
+
+        <div id="auth-buttons-wrapper">
+          <button class="btn-secondary" onclick="openAuthModal('login')">Log in</button>
+          <button class="btn-primary" onclick="openAuthModal('signup')">Sign up</button>
+        </div>
+
+        <div id="user-menu-wrapper" class="user-menu-wrapper" style="display: none;">
+          <button class="user-pill-btn" onclick="toggleUserDropdown()">
+            <div class="avatar-circle" id="user-avatar-initial">U</div>
+            <span id="user-display-name">User</span>
+            <span>▼</span>
+          </button>
+          <div class="user-dropdown-menu" id="user-dropdown">
+            <div class="dropdown-user-header">
+              <strong id="dropdown-name">User</strong>
+              <span class="user-role-tag" id="dropdown-role">GUEST</span>
+            </div>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item" onclick="showView('bookings')">📅 My Bookings</button>
+            <button class="dropdown-item" onclick="showView('profile')">👤 Profile & Settings</button>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item logout-red" onclick="logout()">🚪 Logout</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile 3-Line Hamburger Icon Button -->
+      <button class="mobile-hamburger-btn mobile-only" onclick="toggleMobileDrawer()">
+        <svg width="26" height="26" viewBox="0 0 24 24" stroke="#222" stroke-width="2" fill="none">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Mobile Slide-Down Drawer Overlay -->
+  <div class="mobile-drawer-overlay" id="mobile-drawer">
+    <div class="mobile-drawer-content">
+      <div class="mobile-drawer-header">
+        <strong>Menu</strong>
+        <button onclick="toggleMobileDrawer()">✕</button>
+      </div>
+      <div class="mobile-drawer-body">
+        <div id="mobile-role-btn-wrapper"></div>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item" onclick="showView('home'); toggleMobileDrawer();">🏠 Home Page</button>
+        <button class="dropdown-item" onclick="showView('explore'); toggleMobileDrawer();">🧭 Explore Stays</button>
+        <button class="dropdown-item" onclick="showView('bookings'); toggleMobileDrawer();">📅 My Bookings</button>
+        <button class="dropdown-item" onclick="showView('profile'); toggleMobileDrawer();">👤 Profile & Settings</button>
+        <hr class="dropdown-divider">
+        <div id="mobile-auth-actions"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN VIEWS CONTAINER -->
+  <main class="app-main-content">
+
+    <!-- 1. HOME VIEW -->
+    <section id="home-view" class="view-section">
+      <!-- High Contrast Hero Banner -->
+      <div class="hero-section">
+        <div class="hero-background-overlay"></div>
+        <div class="container hero-container">
+          <div class="hero-content">
+            <h1 class="hero-title">
+              Find your<br>perfect place to<br>live with<br>
+              <span class="text-primary-brand">NestAway Homes</span>
+            </h1>
+            <p class="hero-subtitle">Comfortable homes. Verified stays. Hassle-free living.</p>
+
+            <form class="glass-card-hero" onsubmit="handleHeroSearch(event)">
+              <div class="search-field">
+                <span class="field-label">Search City</span>
+                <select id="hero-city-select">
+                  <option value="">All Cities</option>
+                  <option value="Jaipur">Jaipur</option>
+                  <option value="Bengaluru">Bengaluru</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Delhi">Delhi</option>
+                </select>
+              </div>
+              <div class="divider-line"></div>
+              <div class="search-field">
+                <span class="field-label">Min. Price</span>
+                <select id="hero-min-price">
+                  <option value="">Any Min</option>
+                  <option value="500">₹ 500</option>
+                  <option value="1000">₹ 1,000</option>
+                  <option value="2000">₹ 2,000</option>
+                </select>
+              </div>
+              <div class="divider-line"></div>
+              <div class="search-field">
+                <span class="field-label">Max. Price</span>
+                <select id="hero-max-price">
+                  <option value="">Any Max</option>
+                  <option value="3000">₹ 3,000</option>
+                  <option value="5000">₹ 5,000</option>
+                  <option value="10000">₹ 10,000</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-primary">🔍 Search Homes</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Airbnb-Style Category Pills Bar -->
+      <div class="container" style="margin-top: 2rem;">
+        <div class="category-pills-bar">
+          <button class="category-pill active" onclick="filterCategory('all')">🔥 Trending Stays</button>
+          <button class="category-pill" onclick="filterCategory('villas')">🏰 Heritage Villas</button>
+          <button class="category-pill" onclick="filterCategory('pool')">🏊 Private Pool</button>
+          <button class="category-pill" onclick="filterCategory('beach')">🏖️ Beachfront Cottages</button>
+          <button class="category-pill" onclick="filterCategory('studios')">🏙️ Tech Studios</button>
+          <button class="category-pill" onclick="filterCategory('flats')">🏢 Luxury Apartments</button>
+        </div>
+      </div>
+
+      <!-- Recommended Homes Section -->
+      <div class="container" style="margin-top: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 class="section-title" style="margin-bottom: 0;">Recommended Stays for You</h2>
+          <button class="btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="showView('explore')">View All Stays →</button>
+        </div>
+        <div id="home-recommended-grid" class="property-grid"></div>
+      </div>
+
+      <!-- Why Choose NestAway Feature Cards Section -->
+      <section class="container" style="margin-top: 4.5rem; margin-bottom: 4.5rem;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+          <h2 class="section-title" style="margin-bottom: 0.5rem;">Why Book & Host with NestAway?</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">India's most trusted short-term rental platform</p>
+        </div>
+        <div class="why-us-grid">
+          <div class="why-card">
+            <div class="why-icon-box">🏡</div>
+            <h3>100% Verified Homes</h3>
+            <p>Every listing undergoes strict physical inspection and photos verification.</p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-icon-box">🛡️</div>
+            <h3>Host Safety Guarantee</h3>
+            <p>Comprehensive ₹10L damage protection coverage for property hosts.</p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-icon-box">⚡</div>
+            <h3>Instant Booking</h3>
+            <p>Book your stay in under 60 seconds with instant confirmation.</p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-icon-box">📞</div>
+            <h3>24/7 Dedicated Support</h3>
+            <p>Round-the-clock concierge line to assist guests and hosts anytime.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Verified Guest Ratings & Reviews Section -->
+      <section class="testimonials-section container" style="margin-top: 4rem; margin-bottom: 4rem;">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+          <h2 class="section-title" style="margin-bottom: 0.5rem;">What Our Verified Guests Say</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Real ratings and reviews from happy travelers across India</p>
+        </div>
+        <div class="testimonials-grid">
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">"Booking through NestAway Homes was extremely smooth. The Jaipur villa looked even better than the photos! 100% recommended."</p>
+            <div class="review-author-row">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="author-avatar" alt="Guest">
+              <div>
+                <strong>Rahul Verma</strong>
+                <span class="author-location">Verified Stay in Jaipur</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">"As a host, listing my Bengaluru tech studio was effortless. The host dashboard gives me total control over bookings."</p>
+            <div class="review-author-row">
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" class="author-avatar" alt="Guest">
+              <div>
+                <strong>Priya Sharma</strong>
+                <span class="author-location">Verified Host in Bengaluru</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">"Loved the beachfront cottage in Goa! Clean rooms, fast Wi-Fi, and instant booking confirmation. Will book again."</p>
+            <div class="review-author-row">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" class="author-avatar" alt="Guest">
+              <div>
+                <strong>Amit Patel</strong>
+                <span class="author-location">Verified Stay in Goa</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Host Showcase Callout Banner Section -->
+      <section class="container" style="margin-top: 4rem; margin-bottom: 5rem;">
+        <div class="host-banner-card">
+          <div class="host-banner-content">
+            <span class="host-badge-tag">⭐ Host Earnings Program</span>
+            <h2 class="host-banner-title">Earn up to ₹50,000/month by hosting your space</h2>
+            <p class="host-banner-desc">
+              Turn your extra apartment, villa, or cottage into passive income. Join thousands of property owners listing on NestAway Homes with 100% verified guests and seamless payouts.
+            </p>
+            <div class="host-features-list">
+              <div class="host-feature-item">
+                <span class="feature-icon">🛡️</span>
+                <div>
+                  <strong>100% Verified Guests</strong>
+                  <p>Identity checks & rating profiles for total safety.</p>
+                </div>
+              </div>
+              <div class="host-feature-item">
+                <span class="feature-icon">⚡</span>
+                <div>
+                  <strong>Automated Direct Payouts</strong>
+                  <p>Instant earnings transferred right after check-in.</p>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary" style="margin-top: 1.5rem; padding: 0.85rem 1.8rem; font-size: 1rem;" onclick="handleRoleClick()">
+              🚀 Start Hosting Today
+            </button>
+          </div>
+          <div class="host-banner-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1000&q=80" alt="Luxury Host Villa" class="host-banner-img">
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- 2. EXPLORE VIEW -->
+    <section id="explore-view" class="view-section" style="display: none; padding-top: 2rem; padding-bottom: 4rem;">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <h2 class="section-title" style="margin-bottom: 0;">Explore All Stays</h2>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <select id="filter-city" class="form-input" style="width: 150px;" onchange="applyExploreFilters()">
+              <option value="">All Cities</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Pune">Pune</option>
+              <option value="Delhi">Delhi</option>
+            </select>
+            <select id="filter-price" class="form-input" style="width: 160px;" onchange="applyExploreFilters()">
+              <option value="">All Prices</option>
+              <option value="under-2500">Under ₹2,500</option>
+              <option value="2500-5000">₹2,500 - ₹5,000</option>
+              <option value="above-5000">Above ₹5,000</option>
+            </select>
+            <button class="btn-secondary" onclick="resetExploreFilters()">🔄 Reset Filters</button>
+          </div>
+        </div>
+        <div id="explore-grid" class="property-grid"></div>
+      </div>
+    </section>
+
+    <!-- 3. FULL-SCREEN PROPERTY DETAIL VIEW (Spans Full Screen Width & Height) -->
+    <section id="property-detail-view" class="view-section" style="display: none; padding-top: 2rem; padding-bottom: 5rem;">
+      <div class="container">
+        <button class="btn-secondary" style="margin-bottom: 1.5rem;" onclick="showView('explore')">← Back to Stays</button>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;" class="detail-page-grid">
+          <div>
+            <h1 id="detail-title" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem;"></h1>
+            <p id="detail-location" style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem;"></p>
+            
+            <!-- High-Res Photo Gallery Grid -->
+            <div class="detail-gallery-grid">
+              <img id="detail-main-img" src="" alt="Property" class="gallery-main-img">
+            </div>
+
+            <div style="margin-top: 2.5rem;">
+              <h3 style="font-size: 1.35rem; margin-bottom: 0.75rem;">About This Stay</h3>
+              <p id="detail-description" style="line-height: 1.7; color: var(--text-main); font-size: 1.05rem;"></p>
+            </div>
+
+            <div style="margin-top: 2.5rem;">
+              <h3 style="font-size: 1.35rem; margin-bottom: 1rem;">Property Features & Amenities</h3>
+              <div class="amenities-pills-grid">
+                <span class="amenity-pill">📶 High-Speed Fiber Wi-Fi</span>
+                <span class="amenity-pill">❄️ Air Conditioning</span>
+                <span class="amenity-pill">🍳 Fully Equipped Kitchen</span>
+                <span class="amenity-pill">🚘 Free Reserved Parking</span>
+                <span class="amenity-pill">📺 55" Smart TV</span>
+                <span class="amenity-pill">⚡ 24/7 Power Backup</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Dedicated Booking Checkout Card -->
+          <div>
+            <div class="booking-checkout-card">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.25rem;">
+                <span id="detail-price" style="font-size: 1.8rem; font-weight: 800; color: var(--primary);"></span>
+                <span style="color: var(--text-muted);">/ night</span>
+              </div>
+
+              <form onsubmit="handleProceedToPayment(event)">
+                <div class="form-group">
+                  <label class="form-label">Check-In Date</label>
+                  <input type="date" id="page-book-checkin" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Check-Out Date</label>
+                  <input type="date" id="page-book-checkout" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Occupant Full Name</label>
+                  <input type="text" id="page-book-name" class="form-input" placeholder="Rajesh Kumar" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Occupant Phone</label>
+                  <input type="tel" id="page-book-phone" class="form-input" placeholder="9876543210" required>
+                </div>
+
+                <div class="price-breakup-box">
+                  <div class="price-row">
+                    <span>Nightly Rate</span>
+                    <span id="summary-nightly-rate">₹0</span>
+                  </div>
+                  <div class="price-row">
+                    <span>Nights Count</span>
+                    <span id="summary-nights-count">1 Night</span>
+                  </div>
+                  <div class="price-row">
+                    <span>Cleaning & Service Fee</span>
+                    <span>₹250</span>
+                  </div>
+                  <hr style="margin: 0.5rem 0; border-top: 1px solid var(--border-light);">
+                  <div class="price-row total-row">
+                    <strong>Total Amount Payable</strong>
+                    <strong id="summary-total-price" style="color: var(--primary);">₹0</strong>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 0.95rem; font-size: 1rem; margin-top: 1rem;">
+                  💳 Proceed to Payment Step →
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. HOST DASHBOARD VIEW -->
+    <section id="host-view" class="view-section" style="display: none; padding-top: 2rem; padding-bottom: 4rem;">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <div>
+            <h2 class="section-title" style="margin-bottom: 0.25rem;">Host Operations Dashboard</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Manage your property listings and guest booking requests.</p>
+          </div>
+          <button class="btn-primary" onclick="openAddPropertyModal()">➕ Add New Listing</button>
+        </div>
+
+        <h3 style="margin-bottom: 1rem;">My Property Listings</h3>
+        <div id="host-properties-grid" class="property-grid"></div>
+
+        <h3 style="margin-top: 3rem; margin-bottom: 1rem;">Received Guest Bookings</h3>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Property</th>
+                <th>Guest Name</th>
+                <th>Dates</th>
+                <th>Guests</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="host-bookings-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ADMIN OPERATIONS VIEW -->
+    <section id="admin-view" class="view-section" style="display: none; padding-top: 2rem; padding-bottom: 4rem;">
+      <div class="container">
+        <h2 class="section-title">Admin Operations Control Panel</h2>
+        
+        <div class="admin-tabs">
+          <button class="tab-btn active" id="tab-btn-pending" onclick="switchAdminTab('pending')">🟡 Pending Approvals Queue</button>
+          <button class="tab-btn" id="tab-btn-approved" onclick="switchAdminTab('approved')">🟢 All Approved Live Homes</button>
+          <button class="tab-btn" id="tab-btn-hosts" onclick="switchAdminTab('hosts')">👥 Registered Hosts Directory</button>
+          <button class="tab-btn" id="tab-btn-guests" onclick="switchAdminTab('guests')">👤 Registered Guests Directory</button>
+        </div>
+
+        <!-- Pending Tab -->
+        <div id="admin-pending-tab">
+          <div id="admin-pending-grid" class="property-grid"></div>
+        </div>
+
+        <!-- Approved Tab -->
+        <div id="admin-approved-tab" style="display: none;">
+          <div id="admin-approved-grid" class="property-grid"></div>
+        </div>
+
+        <!-- Hosts Directory Tab -->
+        <div id="admin-hosts-tab" style="display: none;">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Host ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Total Properties</th>
+                  <th>Joined Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-hosts-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Guests Directory Tab -->
+        <div id="admin-guests-tab" style="display: none;">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Guest ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Total Bookings</th>
+                  <th>Joined Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-guests-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. MY BOOKINGS VIEW -->
+    <section id="bookings-view" class="view-section" style="display: none; padding-top: 2rem; padding-bottom: 4rem;">
+      <div class="container">
+        <h2 class="section-title">My Booked Stays</h2>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Property</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Occupant Name</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="guest-bookings-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. MY PROFILE VIEW -->
+    <section id="profile-view" class="view-section" style="display: none; padding-top: 2rem; padding-bottom: 4rem;">
+      <div class="container" style="max-width: 600px;">
+        <div class="modal-box" style="box-shadow: var(--shadow-md);">
+          <div class="modal-header">
+            <h3>My Account Profile</h3>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="profile-name" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="profile-email" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="text" id="profile-phone" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">User Role</label>
+              <input type="text" id="profile-role" class="form-input" readonly>
+            </div>
+            <div id="upgrade-host-wrapper" style="margin-top: 1.5rem;">
+              <button class="btn-primary" style="width: 100%;" onclick="upgradeToHost()">⭐ Upgrade Account to Host</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- INTERACTIVE PAYMENT GATEWAY MODAL (React-Style Payment Checkout) -->
+  <div class="modal-overlay" id="payment-modal">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3>💳 Complete Booking Payment</h3>
+        <button class="modal-close-btn" onclick="closePaymentModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: var(--bg-warm); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong id="pay-property-title">Property</strong>
+            <p id="pay-stay-dates" style="font-size: 0.85rem; color: var(--text-muted);"></p>
+          </div>
+          <strong id="pay-total-amount" style="font-size: 1.4rem; color: var(--primary);">₹0</strong>
+        </div>
+
+        <div class="admin-tabs" style="margin-bottom: 1.25rem;">
+          <button class="tab-btn active" id="pay-tab-upi" onclick="switchPayTab('upi')">📱 UPI / QR</button>
+          <button class="tab-btn" id="pay-tab-card" onclick="switchPayTab('card')">💳 Card</button>
+          <button class="tab-btn" id="pay-tab-cash" onclick="switchPayTab('cash')">💵 Pay at Check-In</button>
+        </div>
+
+        <!-- UPI Tab -->
+        <div id="pay-upi-view" style="text-align: center; padding: 1rem 0;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=nestaway@upi&pn=NestAwayHomes" alt="UPI QR" style="border: 2px solid var(--border-medium); border-radius: var(--radius-md); padding: 0.5rem; margin-bottom: 0.75rem;">
+          <p style="font-size: 0.9rem; font-weight: 600;">Scan QR using PhonePe, GPay, or Paytm</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">VPA: nestaway@upi</p>
+        </div>
+
+        <!-- Card Tab -->
+        <div id="pay-card-view" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" placeholder="4532 •••• •••• 8901">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Expiry Date</label>
+              <input type="text" class="form-input" placeholder="MM/YY">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVV</label>
+              <input type="password" class="form-input" placeholder="•••">
+            </div>
+          </div>
+        </div>
+
+        <!-- Pay at Checkin Tab -->
+        <div id="pay-cash-view" style="display: none; padding: 1rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+          <p style="font-size: 0.95rem; font-weight: 600;">💵 Pay Cash / UPI directly at property check-in</p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Your room reservation will be locked instantly!</p>
+        </div>
+
+        <button class="btn-primary" style="width: 100%; padding: 0.9rem; font-size: 1.05rem; margin-top: 1.5rem;" onclick="confirmFinalPayment()">
+          🔒 Confirm Payment & Reserve Stay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="container footer-container">
+      <div class="footer-brand-col">
+        <div class="brand-logo-btn">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <path d="M20 4L4 17L7.5 19.8L20 9.6L32.5 19.8L36 17L20 4Z" fill="#FF385C" />
+            <path d="M8 22C8 28.6274 13.3726 34 20 34C26.6274 34 32 28.6274 32 22H28C28 26.4183 24.4183 30 20 30C15.5817 30 12 26.4183 12 22H8Z" fill="#E2A952" />
+            <path d="M20 23L18.8 21.9C14.6 18.1 11.8 15.5 11.8 12.4C11.8 9.9 13.7 8 16.2 8C17.6 8 19 8.65 20 9.7C21 8.65 22.4 8 23.8 8C26.3 8 28.2 9.9 28.2 12.4C28.2 15.5 25.4 18.1 21.2 21.91L20 23Z" fill="#FF385C" />
+          </svg>
+          <span class="brand-name"><strong>NestAway</strong> Homes</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.75rem; max-width: 320px;">
+          Comfortable homes. Verified stays. Hassle-free vacation rentals across India.
+        </p>
+      </div>
+
+      <div class="footer-links-grid">
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <a href="#" onclick="showView('home')">Home</a>
+          <a href="#" onclick="showView('explore')">Explore Stays</a>
+          <a href="#" onclick="handleRoleClick()">Become a Host</a>
+        </div>
+        <div class="footer-col">
+          <h4>Popular Cities</h4>
+          <a href="#" onclick="showView('explore')">Jaipur Stays</a>
+          <a href="#" onclick="showView('explore')">Bengaluru Stays</a>
+          <a href="#" onclick="showView('explore')">Goa Cottages</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support & Legal</h4>
+          <a href="#">Help Center</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <p>© 2026 NestAway Homes Inc. All rights reserved.</p>
+        <p>Built with Spring Boot & Pure JavaScript</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- AUTH MODAL (Airbnb-Style Login / Register Modal) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-box" style="max-width: 460px;">
+      <div class="modal-header" style="flex-direction: column; align-items: stretch; border-bottom: none; padding-bottom: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+              <path d="M20 4L4 17L7.5 19.8L20 9.6L32.5 19.8L36 17L20 4Z" fill="#FF385C" />
+              <path d="M8 22C8 28.6274 13.3726 34 20 34C26.6274 34 32 28.6274 32 22H28C28 26.4183 24.4183 30 20 30C15.5817 30 12 26.4183 12 22H8Z" fill="#E2A952" />
+              <path d="M20 23L18.8 21.9C14.6 18.1 11.8 15.5 11.8 12.4C11.8 9.9 13.7 8 16.2 8C17.6 8 19 8.65 20 9.7C21 8.65 22.4 8 23.8 8C26.3 8 28.2 9.9 28.2 12.4C28.2 15.5 25.4 18.1 21.2 21.91L20 23Z" fill="#FF385C" />
+            </svg>
+            <strong style="font-size: 1.15rem;">NestAway Homes</strong>
+          </div>
+          <button class="modal-close-btn" onclick="closeAuthModal()">✕</button>
+        </div>
+
+        <!-- Auth Switcher Tabs -->
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab-btn active" id="auth-tab-login" onclick="setAuthMode('login')">Log In</button>
+          <button type="button" class="auth-tab-btn" id="auth-tab-register" onclick="setAuthMode('register')">Sign Up</button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding-top: 0.5rem;">
+        <h4 id="auth-subtitle" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem;">Welcome back to NestAway</h4>
+
+        <form onsubmit="handleAuthSubmit(event)">
+          <!-- Name (Sign Up only) -->
+          <div id="auth-name-group" class="form-group" style="display: none;">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="auth-name" class="form-input" placeholder="e.g. Rajesh Kumar">
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="auth-email" class="form-input" placeholder="e.g. rajesh@gmail.com" required>
+            <span class="email-note">⚠️ Note: Email must end with @gmail.com (Backend Rule)</span>
+          </div>
+
+          <!-- Password with Toggle -->
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required>
+              <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('auth-password', this)">👁️</button>
+            </div>
+          </div>
+
+          <!-- Confirm Password with Toggle (Sign Up only) -->
+          <div id="auth-confirm-password-group" class="form-group" style="display: none;">
+            <label class="form-label">Confirm Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="auth-confirm-password" class="form-input" placeholder="••••••••">
+              <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('auth-confirm-password', this)">👁️</button>
+            </div>
+          </div>
+
+          <!-- Phone Number (Sign Up only) -->
+          <div id="auth-phone-group" class="form-group" style="display: none;">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" id="auth-phone" class="form-input" placeholder="e.g. 9876543210">
+          </div>
+
+          <!-- Register Role Cards (Sign Up only) -->
+          <div id="auth-role-select-group" class="form-group" style="display: none;">
+            <label class="form-label">I want to use NestAway as a:</label>
+            <input type="hidden" id="auth-register-role" value="GUEST">
+            <div class="role-selector-cards">
+              <div class="role-card active" id="role-card-guest" onclick="selectRegisterRole('GUEST')">
+                <span style="font-size: 1.4rem;">🧳</span>
+                <div>
+                  <strong style="font-size: 0.9rem;">Guest Traveler</strong>
+                  <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Book & rent stays</p>
+                </div>
+              </div>
+              <div class="role-card" id="role-card-host" onclick="selectRegisterRole('HOST')">
+                <span style="font-size: 1.4rem;">🏠</span>
+                <div>
+                  <strong style="font-size: 0.9rem;">Property Host</strong>
+                  <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">List & rent homes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; padding: 0.9rem; font-size: 1rem; margin-top: 1rem;" id="auth-submit-btn">Log in</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.25rem;">
+          <button type="button" style="background: transparent; color: var(--primary); font-weight: 600; font-size: 0.9rem;" id="auth-toggle-btn" onclick="toggleAuthMode()">
+            Don't have an account? Sign up
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD PROPERTY MODAL -->
+  <div class="modal-overlay" id="add-property-modal">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>List New Property on NestAway</h3>
+        <button class="modal-close-btn" onclick="closeAddPropertyModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleAddPropertySubmit(event)">
+          <div class="form-group">
+            <label class="form-label">Property Title</label>
+            <input type="text" id="prop-title" class="form-input" placeholder="e.g. Heritage Royal Villa" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Property Type</label>
+            <select id="prop-type" class="form-input" required>
+              <option value="APARTMENT">Apartment</option>
+              <option value="VILLA">Villa</option>
+              <option value="INDEPENDENT_HOUSE">Independent House</option>
+            </select>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" id="prop-city" class="form-input" placeholder="e.g. Jaipur" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price per Night (₹)</label>
+              <input type="number" id="prop-price" class="form-input" placeholder="e.g. 3500" required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Bedrooms</label>
+              <input type="number" id="prop-bedrooms" class="form-input" value="2" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Beds</label>
+              <input type="number" id="prop-beds" class="form-input" value="2" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bathrooms</label>
+              <input type="number" id="prop-bathrooms" class="form-input" value="2" min="1" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" id="prop-address" class="form-input" placeholder="e.g. Plot 45, Vaishali Nagar" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="prop-desc" class="form-input" rows="3" placeholder="Describe your property..." required></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Submit Property Listing</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
