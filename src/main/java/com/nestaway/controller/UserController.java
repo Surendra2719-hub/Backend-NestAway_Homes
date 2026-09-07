@@ -30,7 +30,11 @@ public class UserController {
     public UserResponse registerUser(@Valid @RequestBody UserRequest userRequest) {
 
         User user = new User();
-        user.setName(userRequest.getName());
+        String name = userRequest.getName();
+        if (name == null || name.trim().isEmpty()) {
+            name = userRequest.getEmail().split("@")[0];
+        }
+        user.setName(name);
         user.setEmail(userRequest.getEmail());
         user.setPassword(userRequest.getPassword());
         user.setPhone(userRequest.getPhone());
@@ -52,7 +56,11 @@ public class UserController {
     public UserResponse updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
 
         User user = new User();
-        user.setName(userRequest.getName());
+        String name = userRequest.getName();
+        if (name == null || name.trim().isEmpty()) {
+            name = userRequest.getEmail().split("@")[0];
+        }
+        user.setName(name);
         user.setEmail(userRequest.getEmail());
         user.setPassword(userRequest.getPassword());
         user.setPhone(userRequest.getPhone());
@@ -75,7 +83,11 @@ public class UserController {
             @Valid @RequestBody UserRequest userRequest) {
 
         User user = new User();
-        user.setName(userRequest.getName());
+        String name = userRequest.getName();
+        if (name == null || name.trim().isEmpty()) {
+            name = userRequest.getEmail().split("@")[0];
+        }
+        user.setName(name);
         user.setEmail(userRequest.getEmail());
         user.setPassword(userRequest.getPassword());
         user.setPhone(userRequest.getPhone());

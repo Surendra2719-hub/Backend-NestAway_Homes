@@ -34,11 +34,16 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException exception) {
 
         Map<String, String> errors = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
 
         exception.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
+            if (sb.length() == 0) {
+                sb.append(error.getDefaultMessage());
+            }
         });
 
+        errors.put("message", sb.toString());
         return errors;
     }
     

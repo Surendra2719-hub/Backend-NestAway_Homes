@@ -175,6 +175,9 @@ function setAuthMode(mode) {
   const tabLogin = document.getElementById('auth-tab-login');
   const tabRegister = document.getElementById('auth-tab-register');
 
+  const nameInput = document.getElementById('auth-name');
+  const confirmPassInput = document.getElementById('auth-confirm-password');
+
   if (authMode === 'login') {
     if (subtitle) subtitle.textContent = 'Welcome back to NestAway';
     if (nameGroup) nameGroup.style.display = 'none';
@@ -182,7 +185,7 @@ function setAuthMode(mode) {
     if (roleGroup) roleGroup.style.display = 'none';
     if (confirmPassGroup) confirmPassGroup.style.display = 'none';
 
-    const confirmPassInput = document.getElementById('auth-confirm-password');
+    if (nameInput) nameInput.required = false;
     if (confirmPassInput) confirmPassInput.required = false;
 
     if (submitBtn) submitBtn.textContent = 'Log in';
@@ -197,7 +200,7 @@ function setAuthMode(mode) {
     if (roleGroup) roleGroup.style.display = 'block';
     if (confirmPassGroup) confirmPassGroup.style.display = 'block';
 
-    const confirmPassInput = document.getElementById('auth-confirm-password');
+    if (nameInput) nameInput.required = true;
     if (confirmPassInput) confirmPassInput.required = true;
 
     if (submitBtn) submitBtn.textContent = 'Create Account';
@@ -229,7 +232,7 @@ async function handleAuthSubmit(e) {
   const password = document.getElementById('auth-password').value;
 
   if (!email.toLowerCase().endsWith('@gmail.com')) {
-    alert('Email must end with @gmail.com (Backend constraint)');
+    alert('⚠️ Email must end with @gmail.com (Backend constraint)');
     return;
   }
 
@@ -253,20 +256,25 @@ async function handleAuthSubmit(e) {
         showToast(`Welcome back, ${currentUser.name}!`);
         showView('home');
       } else {
-        alert('Invalid Email ID or Password');
+        alert('⚠️ Invalid Email ID or Password');
       }
     } catch (err) {
-      alert('Network error connecting to Spring Boot backend');
+      alert('⚠️ Network error connecting to backend service');
     }
   } else {
-    // Signup / Register Mode - Validate Passwords Match
+    // Signup / Register Mode - Validate Passwords Match & Name
+    const name = document.getElementById('auth-name').value.trim();
+    if (!name) {
+      alert('⚠️ Full Name is required to register!');
+      return;
+    }
+
     const confirmPassword = document.getElementById('auth-confirm-password').value;
     if (password !== confirmPassword) {
       alert('⚠️ Passwords do not match! Please make sure both password fields match exactly.');
       return;
     }
 
-    const name = document.getElementById('auth-name').value.trim();
     const phone = document.getElementById('auth-phone').value.trim();
     const roleSelect = document.getElementById('auth-register-role').value;
 
@@ -283,10 +291,17 @@ async function handleAuthSubmit(e) {
         showToast('Registration successful! Please log in with your credentials.');
         openAuthModal('login');
       } else {
-        alert('Registration failed. Email might already exist.');
+        let errorMsg = 'Registration failed. Email might already exist in the database.';
+        try {
+          const errData = await res.json();
+          if (errData && (errData.message || errData.error)) {
+            errorMsg = errData.message || errData.error;
+          }
+        } catch (err){}
+        alert(`⚠️ ${errorMsg}`);
       }
     } catch (err) {
-      alert('Network error registering user');
+      alert('⚠️ Network error registering user');
     }
   }
 }
