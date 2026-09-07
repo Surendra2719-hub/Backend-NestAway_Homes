@@ -231,11 +231,6 @@ async function handleAuthSubmit(e) {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
 
-  if (authMode === 'register' && !email.toLowerCase().endsWith('@gmail.com')) {
-    alert('⚠️ Email must end with @gmail.com (Backend constraint)');
-    return;
-  }
-
   if (authMode === 'login') {
     try {
       const res = await fetch(`${BASE_URL}/auth/login`, {
