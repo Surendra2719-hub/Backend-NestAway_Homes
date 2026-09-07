@@ -13,11 +13,9 @@ import lombok.Data;
 public class BookingRequest {
 
     @NotNull(message = "Check-in date is required")
-    @FutureOrPresent(message = "Check-in date cannot be in the past")
     private LocalDate checkInDate;
 
     @NotNull(message = "Check-out date is required")
-    @Future(message = "Check-out date must be in the future")
     private LocalDate checkOutDate;
 
     @NotNull(message = "Total guests is required")

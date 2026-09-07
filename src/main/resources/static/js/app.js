@@ -637,10 +637,24 @@ async function confirmFinalPayment() {
       showToast('🎉 Payment Received & Stay Booked Successfully!');
       showView('bookings');
     } else {
-      alert('Failed to complete booking. Please try again.');
+      let errorMsg = `Server error (${res.status})`;
+      try {
+        const text = await res.text();
+        try {
+          const errData = JSON.parse(text);
+          if (typeof errData === 'string') {
+            errorMsg = errData;
+          } else if (errData) {
+            errorMsg = errData.message || errData.error || JSON.stringify(errData);
+          }
+        } catch(e) {
+          if (text && text.trim().length > 0) errorMsg = text;
+        }
+      } catch (err){}
+      alert(`⚠️ Booking Failed (Status ${res.status}): ${errorMsg}`);
     }
   } catch (err) {
-    alert('Network error connecting to server');
+    alert('⚠️ Network error connecting to booking service');
   }
 }
 
