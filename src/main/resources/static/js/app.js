@@ -291,14 +291,21 @@ async function handleAuthSubmit(e) {
         showToast('Registration successful! Please log in with your credentials.');
         openAuthModal('login');
       } else {
-        let errorMsg = 'Registration failed. Email might already exist in the database.';
+        let errorMsg = `Server returned status ${res.status}`;
         try {
-          const errData = await res.json();
-          if (errData && (errData.message || errData.error)) {
-            errorMsg = errData.message || errData.error;
+          const text = await res.text();
+          try {
+            const errData = JSON.parse(text);
+            if (typeof errData === 'string') {
+              errorMsg = errData;
+            } else if (errData) {
+              errorMsg = errData.message || errData.error || errData.email || errData.name || errData.password || JSON.stringify(errData);
+            }
+          } catch(e) {
+            if (text && text.trim().length > 0) errorMsg = text;
           }
         } catch (err){}
-        alert(`⚠️ ${errorMsg}`);
+        alert(`⚠️ Registration Failed (Status ${res.status}): ${errorMsg}`);
       }
     } catch (err) {
       alert('⚠️ Network error registering user');

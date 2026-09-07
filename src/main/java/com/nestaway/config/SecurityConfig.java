@@ -46,13 +46,9 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // React dev server yahi port use karta hai (Vite default)
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175"
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Allow all origins (localhost + cloud deployment domains like Railway)
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
